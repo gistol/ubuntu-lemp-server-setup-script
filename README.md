@@ -2,7 +2,7 @@
 ## Prerequisites
 - > Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads).
 - > Install [Vagrant](https://www.vagrantup.com/downloads.html).
-## After complete installation VirtualBox and Vagrant.
+## After complete installation VirtualBox and Vagrant
 
 ```shell
 cd
