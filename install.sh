@@ -24,7 +24,17 @@ make python2.7-dev python-pip re2c supervisor unattended-upgrades whois vim libn
 pv cifs-utils mcrypt bash-completion zsh
 
 # Install PHP Stuffs
-# Current PHP 7.2
+# Current PHP 7.3
+apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages --allow-unauthenticated \
+php7.3-cli php7.3-dev \
+php7.3-pgsql php7.3-sqlite3 php7.3-gd \
+php7.3-curl php7.3-memcached \
+php7.3-imap php7.3-mysql php7.3-mbstring \
+php7.3-xml php7.3-zip php7.3-bcmath php7.3-soap \
+php7.3-intl php7.3-readline php7.3-bz2 \
+php7.3-json
+
+# PHP 7.2
 apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages --allow-unauthenticated \
 php7.2-cli php7.2-dev \
 php7.2-pgsql php7.2-sqlite3 php7.2-gd \
@@ -51,7 +61,7 @@ php7.0-imap php7.0-mysql php7.0-mbstring \
 php7.0-xml php7.0-zip php7.0-bcmath php7.0-soap \
 php7.0-intl php7.0-readline
 
-update-alternatives --set php /usr/bin/php7.2
+update-alternatives --set php /usr/bin/php7.3
 
 # Install Composer
 
@@ -59,6 +69,11 @@ curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
 
 # Set Some PHP CLI Settings
+
+sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php/7.3/cli/php.ini
+sed -i "s/display_errors = .*/display_errors = On/" /etc/php/7.3/cli/php.ini
+sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php/7.3/cli/php.ini
+sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php/7.3/cli/php.ini
 
 sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php/7.2/cli/php.ini
 sed -i "s/display_errors = .*/display_errors = On/" /etc/php/7.2/cli/php.ini
@@ -78,7 +93,7 @@ sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php/7.0/cli/php.ini
 # Install Nginx & PHP-FPM
 
 apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages --allow-unauthenticated \
-nginx php7.1-fpm php7.2-fpm php7.0-fpm
+nginx php7.3-fpm php7.2-fpm php7.1-fpm php7.0-fpm
 
 systemctl restart nginx
 
@@ -98,24 +113,50 @@ systemctl enable jenkins
 
 # Setup Some PHP-FPM Options
 
+# php 7.3
+echo "xdebug.remote_enable = 1" >> /etc/php/7.3/mods-available/xdebug.ini
+echo "xdebug.remote_connect_back = 1" >> /etc/php/7.3/mods-available/xdebug.ini
+echo "xdebug.remote_port = 9000" >> /etc/php/7.3/mods-available/xdebug.ini
+echo "xdebug.max_nesting_level = 512" >> /etc/php/7.3/mods-available/xdebug.ini
+echo "opcache.revalidate_freq = 0" >> /etc/php/7.3/mods-available/opcache.ini
+
+# php 7.2
 echo "xdebug.remote_enable = 1" >> /etc/php/7.2/mods-available/xdebug.ini
 echo "xdebug.remote_connect_back = 1" >> /etc/php/7.2/mods-available/xdebug.ini
 echo "xdebug.remote_port = 9000" >> /etc/php/7.2/mods-available/xdebug.ini
 echo "xdebug.max_nesting_level = 512" >> /etc/php/7.2/mods-available/xdebug.ini
 echo "opcache.revalidate_freq = 0" >> /etc/php/7.2/mods-available/opcache.ini
 
+# php 7.1
 echo "xdebug.remote_enable = 1" >> /etc/php/7.1/mods-available/xdebug.ini
 echo "xdebug.remote_connect_back = 1" >> /etc/php/7.1/mods-available/xdebug.ini
 echo "xdebug.remote_port = 9000" >> /etc/php/7.1/mods-available/xdebug.ini
 echo "xdebug.max_nesting_level = 512" >> /etc/php/7.1/mods-available/xdebug.ini
 echo "opcache.revalidate_freq = 0" >> /etc/php/7.1/mods-available/opcache.ini
 
+# php 7.0
 echo "xdebug.remote_enable = 1" >> /etc/php/7.0/mods-available/xdebug.ini
 echo "xdebug.remote_connect_back = 1" >> /etc/php/7.0/mods-available/xdebug.ini
 echo "xdebug.remote_port = 9000" >> /etc/php/7.0/mods-available/xdebug.ini
 echo "xdebug.max_nesting_level = 512" >> /etc/php/7.0/mods-available/xdebug.ini
 echo "opcache.revalidate_freq = 0" >> /etc/php/7.0/mods-available/opcache.ini
 
+# php 7.3
+sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php/7.3/fpm/php.ini
+sed -i "s/display_errors = .*/display_errors = On/" /etc/php/7.3/fpm/php.ini
+sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php/7.3/fpm/php.ini
+sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php/7.3/fpm/php.ini
+sed -i "s/upload_max_filesize = .*/upload_max_filesize = 100M/" /etc/php/7.3/fpm/php.ini
+sed -i "s/post_max_size = .*/post_max_size = 100M/" /etc/php/7.3/fpm/php.ini
+sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php/7.3/fpm/php.ini
+
+printf "[openssl]\n" | tee -a /etc/php/7.3/fpm/php.ini
+printf "openssl.cainfo = /etc/ssl/certs/ca-certificates.crt\n" | tee -a /etc/php/7.3/fpm/php.ini
+
+printf "[curl]\n" | tee -a /etc/php/7.3/fpm/php.ini
+printf "curl.cainfo = /etc/ssl/certs/ca-certificates.crt\n" | tee -a /etc/php/7.3/fpm/php.ini
+
+# php 7.2
 sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php/7.2/fpm/php.ini
 sed -i "s/display_errors = .*/display_errors = On/" /etc/php/7.2/fpm/php.ini
 sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php/7.2/fpm/php.ini
@@ -130,6 +171,7 @@ printf "openssl.cainfo = /etc/ssl/certs/ca-certificates.crt\n" | tee -a /etc/php
 printf "[curl]\n" | tee -a /etc/php/7.2/fpm/php.ini
 printf "curl.cainfo = /etc/ssl/certs/ca-certificates.crt\n" | tee -a /etc/php/7.2/fpm/php.ini
 
+# php 7.1
 sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php/7.1/fpm/php.ini
 sed -i "s/display_errors = .*/display_errors = On/" /etc/php/7.1/fpm/php.ini
 sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php/7.1/fpm/php.ini
@@ -144,6 +186,7 @@ printf "openssl.cainfo = /etc/ssl/certs/ca-certificates.crt\n" | tee -a /etc/php
 printf "[curl]\n" | tee -a /etc/php/7.1/fpm/php.ini
 printf "curl.cainfo = /etc/ssl/certs/ca-certificates.crt\n" | tee -a /etc/php/7.1/fpm/php.ini
 
+# php 7.0
 sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php/7.0/fpm/php.ini
 sed -i "s/display_errors = .*/display_errors = On/" /etc/php/7.0/fpm/php.ini
 sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php/7.0/fpm/php.ini
@@ -188,9 +231,23 @@ EOF
 sed -i "s/user www-data;/user jenkins;/" /etc/nginx/nginx.conf
 sed -i "s/# server_names_hash_bucket_size.*/server_names_hash_bucket_size 64;/" /etc/nginx/nginx.conf
 
+#PHP 7.3
+sed -i "s/user = www-data/user = jenkins/" /etc/php/7.3/fpm/pool.d/www.conf
+sed -i "s/group = www-data/group = jenkins/" /etc/php/7.3/fpm/pool.d/www.conf
+
+sed -i "s/listen\.owner.*/listen.owner = jenkins/" /etc/php/7.3/fpm/pool.d/www.conf
+sed -i "s/listen\.group.*/listen.group = jenkins/" /etc/php/7.3/fpm/pool.d/www.conf
+sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php/7.3/fpm/pool.d/www.conf
+
+#PHP 7.2
 sed -i "s/user = www-data/user = jenkins/" /etc/php/7.2/fpm/pool.d/www.conf
 sed -i "s/group = www-data/group = jenkins/" /etc/php/7.2/fpm/pool.d/www.conf
 
+sed -i "s/listen\.owner.*/listen.owner = jenkins/" /etc/php/7.2/fpm/pool.d/www.conf
+sed -i "s/listen\.group.*/listen.group = jenkins/" /etc/php/7.2/fpm/pool.d/www.conf
+sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php/7.2/fpm/pool.d/www.conf
+
+#PHP 7.1
 sed -i "s/user = www-data/user = jenkins/" /etc/php/7.1/fpm/pool.d/www.conf
 sed -i "s/group = www-data/group = jenkins/" /etc/php/7.1/fpm/pool.d/www.conf
 
@@ -198,6 +255,7 @@ sed -i "s/listen\.owner.*/listen.owner = jenkins/" /etc/php/7.1/fpm/pool.d/www.c
 sed -i "s/listen\.group.*/listen.group = jenkins/" /etc/php/7.1/fpm/pool.d/www.conf
 sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php/7.1/fpm/pool.d/www.conf
 
+#PHP 7.0
 sed -i "s/user = www-data/user = jenkins/" /etc/php/7.0/fpm/pool.d/www.conf
 sed -i "s/group = www-data/group = jenkins/" /etc/php/7.0/fpm/pool.d/www.conf
 
@@ -206,11 +264,13 @@ sed -i "s/listen\.group.*/listen.group = jenkins/" /etc/php/7.0/fpm/pool.d/www.c
 sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php/7.0/fpm/pool.d/www.conf
 
 systemctl restart nginx
+systemctl restart php7.3-fpm
 systemctl restart php7.2-fpm
 systemctl restart php7.1-fpm
 systemctl restart php7.0-fpm
 
 systemctl enable nginx
+systemctl enable php7.3-fpm
 systemctl enable php7.2-fpm
 systemctl enable php7.1-fpm
 systemctl enable php7.0-fpm
@@ -222,10 +282,10 @@ id jenkins
 groups jenkins
 
 # Install MySQL
-# apt-get install -y mysql-server
+ apt-get install -y mysql-server
 
 # Install MariaDB 10
-apt-get install -y mariadb-server mariadb-client
+# apt-get install -y mariadb-server mariadb-client
 
 # If it’s not running, start it with this command:
 systemctl start mysql
@@ -247,11 +307,11 @@ chown -R jenkins:www-data /var/www
 
 # Enable Swap Memory
 
-# /bin/fallocate -l 1G /var/swap.1
-# /bin/chmod 0600 /var/swap.1
-# /sbin/mkswap /var/swap.1
-# echo "/var/swap.1 swap swap defaults 0 0" | tee -a /etc/fstab
-# /sbin/swapon -a
+/bin/fallocate -l 2G /var/swap.1
+/bin/chmod 0600 /var/swap.1
+/sbin/mkswap /var/swap.1
+echo "/var/swap.1 swap swap defaults 0 0" | tee -a /etc/fstab
+/sbin/swapon -a
 
 apt-get -y update && apt-get -y upgrade && apt-get -y autoremove && apt-get -y autoclean
 
