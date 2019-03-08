@@ -285,6 +285,7 @@ groups jenkins
 curl -OL https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb
 sudo dpkg -i mysql-apt-config*
 apt-get -y update
+apt-get -y upgrade
 apt-get install -y mysql-server
 
 # Install MariaDB 10
