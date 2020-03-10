@@ -1,7 +1,7 @@
 # Prepare for Ubuntu Server Setup
 ```shell
 cd
-git clone https://github.com/FierceBengalTiger/ubuntu-lemp-server-setup-script.git server-setup-script
+git clone https://github.com/gistol/ubuntu-lemp-server-setup-script.git server-setup-script
 cd server-setup-script
 chmod +x install.sh
 sudo ./install.sh
@@ -60,7 +60,7 @@ EXIT;
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 ```
 
-# [Documentation of letsencript for free SSL](https://github.com/FierceBengalTiger/letsencript-free-SSL/)
+# [Documentation of letsencript for free SSL](https://github.com/gistol/letsencript-free-SSL/)
 
 Special thanks to [Behestee](https://github.com/behestee/) bhaiya.
 
